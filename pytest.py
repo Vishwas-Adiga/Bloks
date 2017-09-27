@@ -41,7 +41,7 @@ while not done:
             done = True # Flag that we are done so we exit this loop
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
-                popup = pygame.rect.Rect(0, 0, 0, 0)
+                #popup = pygame.rect.Rect(0, 0, 0, 0)
                 if rectangle.collidepoint(event.pos):
                     rectangle_draging = True
                     mouse_x, mouse_y = event.pos
@@ -70,7 +70,7 @@ while not done:
     # First, clear the screen to white. Don't put other drawing commands
     # above this, or they will be erased with this command.
     screen.fill(WHITE)
-    pygame.mouse.set_cursor(*pygame.cursors.arrow)
+    pygame.mouse.set_cursor(*pygame.cursors.diamond)
     pygame.draw.rect(screen, WHITE, main)
     pygame.draw.rect(screen, teal, [0,490,900,10])
     
