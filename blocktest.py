@@ -44,6 +44,7 @@ while not done:
     
     basicfont = pygame.font.SysFont(None, 100)
     loadingfont = pygame.font.SysFont(None, 20)
+
     text = basicfont.render('Bloks', True, (255, 255, 255), blue)
     textrect = text.get_rect()
     textrect.centerx = screen.get_rect().centerx
