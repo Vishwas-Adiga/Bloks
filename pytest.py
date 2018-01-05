@@ -1,7 +1,4 @@
 import pygame
-from tkinter import *
-import sys
-import os
 
 pygame.init()
 
@@ -27,26 +24,31 @@ pygame.display.set_caption("Bloks")
 pygame.mouse.set_cursor(*pygame.cursors.diamond)
 
 
-# Define the font and it's size
-largeText = pygame.font.Font('freesansbold.ttf', 100)
+# Define the fonts and it's size
+largeText = pygame.font.Font('freesansbold.ttf', 80)
 
 
 
 class textObjects():
     '''To create a class with which we can display the text on a surface with ease'''
 
-    def __init__(self,text,xCord,yCord,font):
+    def __init__(self, text, xCord, yCord, font):
         self.textOnSurface = text
         self.x = xCord
         self.y = yCord
         self.displayFont = font
 
     def create(self, colour, bg, surface):
-        text = self.displayFont.render(self.textOnSurface, True, colour, WHITE)
-        text_rectSize = text.get_rect()
-        text_rect = pygame.draw.rect(surface, bg, (self.x,self.y,text_rectSize[0],text_rectSize[1])  )
-        surface.blit(text,text_rect)
-        pygame.display.flip()
+        self.surface = surface
+        self.text = self.displayFont.render(self.textOnSurface, True, colour, WHITE)
+        self.text_rectSize = self.text.get_rect()
+        self.text_rect = pygame.draw.rect(self.surface, bg, (self.x,self.y,self.text_rectSize[0],self.text_rectSize[1]))
+
+    def blit(self):
+        self.surface.blit(self.text,self.text_rect)
+
+
+
 
 
 
@@ -106,10 +108,13 @@ while not done:
  
     # First, clear the screen to white. Don't put other drawing commands
     # above this, or they will be erased with this command.
-    screen.fill(WHITE)
+    test = textObjects('Hello', 300, 300, largeText)
+    test.create(BLACK, WHITE, screen)
 
-    test = textObjects('hello', 300, 300, largeText)
-    test.create(blue,WHITE,screen)
+
+    screen.fill(WHITE)
+    test.blit()
+
 
     pygame.draw.rect(screen, WHITE, main)
     pygame.draw.rect(screen, teal, [0,490,900,10])
@@ -121,6 +126,9 @@ while not done:
  
     # --- Go ahead and update the screen with what we've drawn.
     pygame.display.flip()
+
+
+
     
     # --- Limit to 60 frames per second
     clock.tick(60)
