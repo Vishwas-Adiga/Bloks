@@ -25,7 +25,10 @@ PRIMARY_DEEP_DARK   = (   0, 131, 143)
 #default fonts
 Dubai_small   = pygame.font.SysFont('Dubai', 20)
 Dubai_med   = pygame.font.SysFont('Dubai', 30)
+Dubai   = pygame.font.SysFont('Dubai', 40)
 Dubai_large = pygame.font.SysFont('Dubai', 60)
+
+Roboto = pygame.font.SysFont('Roboto', 40)
 
 
 #screen details
@@ -34,7 +37,8 @@ size = (width,height)
 screen = pygame.display.set_mode(size,pygame.FULLSCREEN)
 pygame.display.set_caption("Bloks")
 #pygame.mouse.set_cursor(*pygame.cursors.arrow)
-thickarrow_strings = ( "xX                      ",
+thickarrow_strings = (
+          "XX                      ",
           "X.X                     ",
           "X..X                    ",
           "X...X                   ",
@@ -75,30 +79,75 @@ btn_open_project = pygame.rect.Rect(width/4+300,160,180,180)
 box_no_recents = pygame.rect.Rect(0,0,210,210)
 
 #images
-img_close = pygame.image.load('close.png').convert_alpha()
+img_close = pygame.image.load('Images/close.png').convert_alpha()
 
-img_new_project = pygame.image.load('Images/menu_new_project/menu_new_project.png').convert_alpha()
+img_new_project       = pygame.image.load('Images/menu_new_project/menu_new_project.png').convert_alpha()
 img_new_project_hover = pygame.image.load('Images/menu_new_project/menu_new_project_hover.png').convert_alpha()
 img_new_project_click = pygame.image.load('Images/menu_new_project/menu_new_project_click.png').convert_alpha()
 
-img_open_project = pygame.image.load('Images/menu_open_project/menu_open_project.png').convert_alpha()
+img_open_project       = pygame.image.load('Images/menu_open_project/menu_open_project.png').convert_alpha()
 img_open_project_hover = pygame.image.load('Images/menu_open_project/menu_open_project_hover.png').convert_alpha()
 img_open_project_click = pygame.image.load('Images/menu_open_project/menu_open_project_click.png').convert_alpha()
 
-img_no_recents = pygame.image.load('no_recents.png').convert_alpha()
+img_no_recents = pygame.image.load('Images/no_recents.png').convert_alpha()
 
 #text
 txt_title = Dubai_large.render('Bloks', True, WHITE)
 txt_recent = Dubai_med.render('Recent', True, GREY_DARK)
 txt_no_recents = Dubai_small.render('No recent files', True, GREY_DARK)
 
+#new project dialog
+dialog_bg = pygame.Surface((width,height))
+dialog_bg.fill(BLACK)
+dialog_bg.set_alpha(100)
 
+dialog_cont = pygame.rect.Rect(0,0,2*width/3,2*height/3)
+dialog_title = Roboto.render('Create a new project', True, WHITE)
+
+#functions
+def show_new_project_dialog():
+    dialog_show = True
+    return
+
+def hide_new_project_dialog():
+    
+    return
+
+def DrawRoundRect(surface, color, rect, width, xr, yr):
+    clip = surface.get_clip()
+    
+    # left and right
+    surface.set_clip(clip.clip(rect.inflate(0, -yr*2)))
+    pygame.draw.rect(surface, color, rect.inflate(1-width,0), width)
+
+    # top and bottom
+    surface.set_clip(clip.clip(rect.inflate(-xr*2, 0)))
+    pygame.draw.rect(surface, color, rect.inflate(0,1-width), width)
+
+    # top left corner
+    surface.set_clip(clip.clip(rect.left, rect.top, xr, yr))
+    pygame.draw.ellipse(surface, color, pygame.Rect(rect.left, rect.top, 2*xr, 2*yr), width)
+
+    # top right corner
+    surface.set_clip(clip.clip(rect.right-xr, rect.top, xr, yr))
+    pygame.draw.ellipse(surface, color, pygame.Rect(rect.right-2*xr, rect.top, 2*xr, 2*yr), width)
+
+    # bottom left
+    surface.set_clip(clip.clip(rect.left, rect.bottom-yr, xr, yr))
+    pygame.draw.ellipse(surface, color, pygame.Rect(rect.left, rect.bottom-2*yr, 2*xr, 2*yr), width)
+
+    # bottom right
+    surface.set_clip(clip.clip(rect.right-xr, rect.bottom-yr, xr, yr))
+    pygame.draw.ellipse(surface, color, pygame.Rect(rect.right-2*xr, rect.bottom-2*yr, 2*xr, 2*yr), width)
+
+    surface.set_clip(clip)
 # Loop until the user clicks the close button.
 done = False
 
 #Other variables
 btn_quit_hover = PRIMARY_DARK
 no_recents = True
+dialog_show = False
  
 # Used to manage how fast the screen updates
 clock = pygame.time.Clock()
@@ -119,8 +168,12 @@ while not done:
                     pygame.QUIT
                 elif btn_new_project.collidepoint(event.pos):
                     img_new_project_current = img_new_project_click
+                    show_new_project_dialog()
+                    dialog_show = True
                 elif btn_open_project.collidepoint(event.pos):
                     img_open_project_current = img_open_project_click
+                elif dialog_cont.collidepoint(event.pos):
+                    dialog_show = False
         elif event.type == pygame.MOUSEMOTION:
             if btn_quit.collidepoint(event.pos):
                 btn_quit_hover = PRIMARY_DEEP_DARK
@@ -168,8 +221,12 @@ while not done:
         screen.blit(img_no_recents,box_no_recents)
         screen.blit(txt_no_recents,(box_no_recents.left+40,box_no_recents.bottom+15))
     
-
- 
+    if dialog_show:
+        screen.blit(dialog_bg,(0,0))
+        #pygame.draw.rect(screen,PRIMARY,dialog_cont)
+        DrawRoundRect(screen, GREY_DARK, dialog_cont, 0, 10, 10)
+        dialog_cont.center = dialog_bg.get_rect().center
+        screen.blit(dialog_title,(dialog_cont.left+20,dialog_cont.top+20))
     # --- Go ahead and update the screen with what we've drawn.
     pygame.display.flip()
     
