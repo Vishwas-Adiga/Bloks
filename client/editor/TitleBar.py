@@ -1,43 +1,83 @@
 import pygame
 import os
-import assets.fonts.FontsManager as Fonts
-import assets.ColoursManager as Colours
+import client.assets.fonts.FontsManager as Fonts
+import client.assets.ColoursManager as Colours
+from client.widgets.RoundedButton import *
+from types import MethodType
 
+class TitleBar:
+    def __init__(self, viewComponents, screenWidth, screenHeight):
+        self.titleBar = pygame.Rect(0, 0, screenWidth, 50)
+        self.titleText = Fonts.productSansRegular(30).render('Bloks', True, Colours.WHITE)
+        
+        self.fileButton = RoundedButton('File', Colours.WHITE_ALPHA_90, 0.2, (40, 5))
+        self.fileButton.textRect.left = 205
+        self.fileButton.textRect.centery = 25
+        self.fileButton.redraw()
+        viewComponents.append(self.fileButton)
 
-os.environ['SDL_VIDEO_CENTERED'] = '0'
-def show():
-    pygame.init()
-    screenWidth, screenHeight = pygame.display.Info().current_w, pygame.display.Info().current_h
+        def onHover(self):
+            self.setColour(Colours.WHITE_ALPHA_80)
+
+        def noHover(self):
+            self.setColour(Colours.WHITE_ALPHA_90)
+
+        self.fileButton.onHover = MethodType(onHover, self.fileButton)
+        self.fileButton.noHover = MethodType(noHover, self.fileButton)
+
+        self.editButton = RoundedButton('Edit', Colours.WHITE_ALPHA_90, 0.2, (40, 5))
+        self.editButton.textRect.left = 320
+        self.editButton.textRect.centery = 25
+        self.editButton.redraw()
+        viewComponents.append(self.editButton)
+
+        def onHover(self):
+            self.setColour(Colours.WHITE_ALPHA_80)
+
+        def noHover(self):
+            self.setColour(Colours.WHITE_ALPHA_90)
+
+        self.editButton.onHover = MethodType(onHover, self.editButton)
+        self.editButton.noHover = MethodType(noHover, self.editButton)
+
+        self.toolsButton = RoundedButton('Tools', Colours.WHITE_ALPHA_90, 0.2, (40, 5))
+        self.toolsButton.textRect.left = 440
+        self.toolsButton.textRect.centery = 25
+        self.toolsButton.redraw()
+        viewComponents.append(self.toolsButton)
+
+        def onHover(self):
+            self.setColour(Colours.WHITE_ALPHA_80)
+
+        def noHover(self):
+            self.setColour(Colours.WHITE_ALPHA_90)
+
+        self.toolsButton.onHover = MethodType(onHover, self.toolsButton)
+        self.toolsButton.noHover = MethodType(noHover, self.toolsButton)
+
+        self.helpButton = RoundedButton('Help', Colours.WHITE_ALPHA_90, 0.2, (40, 5))
+        self.helpButton.textRect.left = 575
+        self.helpButton.textRect.centery = 25
+        self.helpButton.redraw()
+        viewComponents.append(self.helpButton)
+
+        def onHover(self):
+            self.setColour(Colours.WHITE_ALPHA_80)
+
+        def noHover(self):
+            self.setColour(Colours.WHITE_ALPHA_90)
+
+        self.helpButton.onHover = MethodType(onHover, self.helpButton)
+        self.helpButton.noHover = MethodType(noHover, self.helpButton)
     
-    screen = pygame.display.set_mode([screenWidth, screenHeight], pygame.RESIZABLE)
-    pygame.display.set_caption("Bloks")
+    def draw(self, surface):
+        pygame.draw.rect(surface, Colours.PRIMARY_900, self.titleBar)
+        surface.blit(self.titleText, (50, (50 - self.titleText.get_rect().height)/2))
+        self.fileButton.draw(surface)
+        self.editButton.draw(surface)
+        self.toolsButton.draw(surface)
+        self.helpButton.draw(surface)
+        
 
-    titleBar = pygame.Rect(0, 0, screenWidth, 100)
 
-    titleText = Fonts.productSansRegular(50).render('Bloks', True, Colours.PRIMARY_500)
-    titleTextBox = titleText.get_rect()
-    titleTextBox.center  = (100, 80)
-
-    loadingText = Fonts.productSansRegular(16).render('Loading...', True, Colours.WHITE)
-    loadingTextBox = loadingText.get_rect()
-    loadingTextBox.center = (85, 120)
-
-    versionText = Fonts.productSansRegular(10).render('Version 1.0', True, Colours.GREY_100)
-    versionTextBox = versionText.get_rect()
-    versionTextBox.center = (370, 190)
-
-    clock = pygame.time.Clock()
-    done = False
-
-    while(not done):
-        for event in pygame.event.get(): 
-            if event.type == pygame.QUIT: 
-                done = True 
-            if event.type == pygame.VIDEORESIZE:
-                surface = pygame.display.set_mode((event.w, event.h),
-                                              pygame.RESIZABLE)
-        screen.fill(Colours.PRIMARY_500)
-        pygame.mouse.set_cursor(*pygame.cursors.arrow)
-        pygame.draw.rect(screen, Colours.WHITE, titleBar)
-        pygame.display.flip()
-        clock.tick(60)
+        

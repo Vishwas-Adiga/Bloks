@@ -1,35 +1,65 @@
-from pygame import *
+import pygame
+from client.widgets.RoundedButtonHelper import *
+import client.assets.fonts.FontsManager as Fonts
+import client.assets.ColoursManager as Colours
 
 class RoundedButton:
+    rect = None
+    rawRect = None
+    radius = None
+
+    textContent = None
+    text = None
+    textRect = None
+
+    padding = None
+    colour  = None
     
-    pos = None
-    rectangle = None
-    def __init__(self, rect, colour, radius = 0.2):
-        rect = Rect(rect)
-        colour = Color(*colour)
-        alpha = colour.a
-        colour.a = 0
-        self.pos = rect.topleft
-        rect.topleft = 0,0
-        self.rectangle = Surface(rect.size,SRCALPHA)
-        circle = Surface([min(rect.size)*3]*2,SRCALPHA)
-        draw.ellipse(circle,(0,0,0),circle.get_rect(),0)
-        circle = transform.smoothscale(circle,[int(min(rect.size)*radius)]*2)
+    def __init__(self, text, colour, radius, padding):
+        self.colour = colour
+        self.textContent = text
+        self.padding = padding
+        self.text = Fonts.productSansRegular(18).render(text, True, Colours.WHITE)
+        self.textRect = self.text.get_rect()
 
-        radius = self.rectangle.blit(circle,(0,0))
-        radius.bottomright = rect.bottomright
-        self.rectangle.blit(circle,radius)
-        radius.topright = rect.topright
-        self.rectangle.blit(circle,radius)
-        radius.bottomleft = rect.bottomleft
-        self.rectangle.blit(circle,radius)
+        paddingL, paddingT = padding
+        self.rawRect = self.textRect
+        self.rawRect.width += paddingL
+        self.rawRect.height += paddingT
+        self.rawRect.topleft =  self.textRect.left - paddingL/2, self.textRect.top - paddingT/2
+        self.radius = radius
+        self.rect = RoundedButtonHelper(self.rawRect, colour, radius)
 
-        self.rectangle.fill((0,0,0),rect.inflate(-radius.w,0))
-        self.rectangle.fill((0,0,0),rect.inflate(0,-radius.h))
+    def isMouseOver(self, point):
+        return self.rawRect.collidepoint(point)
 
-        self.rectangle.fill(colour,special_flags=BLEND_RGBA_MAX)
-        self.rectangle.fill((255,255,255,alpha),special_flags=BLEND_RGBA_MIN)
+    def onClick(self):
+        pass
+    
+    def onHover(self):
+        pass
 
+    def noHover(self):
+        pass
+    
     def draw(self, surface):
-        return surface.blit(self.rectangle, self.pos)
+        self.rect.draw(surface)
+        textRect = self.text.get_rect()
+        textRect.center = self.rawRect.center
+        surface.blit(self.text, textRect)
 
+    def setColour(self, colour):
+        self.colour = colour
+        self.rect = RoundedButtonHelper(self.rawRect, colour, self.radius)
+
+    def setRadius(self, radius):
+        self.radius = radius
+        self.rect = RoundedButtonHelper(self.rawRect, self.colour, radius)
+
+    def redraw(self):
+        paddingL, paddingT = self.padding
+        self.rawRect = self.textRect
+        self.rawRect.width += paddingL
+        self.rawRect.height += paddingT
+        self.rawRect.topleft = (self.textRect.left - paddingL/2, self.textRect.top - paddingT/2)
+        self.rect = RoundedButtonHelper(self.rawRect, self.colour, self.radius)

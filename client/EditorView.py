@@ -4,6 +4,10 @@ import assets.fonts.FontsManager as Fonts
 import assets.ColoursManager as Colours
 import assets.icons.IconsManager as Icons
 from widgets.RoundedButton import *
+from editor.TitleBar import *
+from editor.ProjectBar import *
+from editor.CategoriesPanel import *
+from types import MethodType
 
 class EditorView:
 
@@ -15,22 +19,10 @@ class EditorView:
         screen = pygame.display.set_mode([screenWidth, screenHeight], pygame.RESIZABLE)
         pygame.display.set_caption("Bloks")
 
-        titleBar = pygame.Rect(0, 0, screenWidth, 50)
-        titleText = Fonts.productSansRegular(30).render('Bloks', True, Colours.WHITE)
-
-        projectBar = pygame.Rect(0, 50, screenWidth, 50)
-        fileButton = Fonts.productSansRegular(18).render('File', True, Colours.WHITE)
-        fileButtonBox = fileButton.get_rect()
-        fileButtonBox.left = 200
-        fileButtonBox.centery = 25
-
-        fileButtonHoverBox = fileButton.get_rect()
-        fileButtonHoverBox.width += 40
-        fileButtonHoverBox.height += 5
-        fileButtonHoverBox.topleft =  180, fileButtonBox.top - 2.5
-
-        btn = RoundedButton(fileButtonHoverBox, Colours.WHITE_ALPHA_80, 0.2)
-
+        titleBar = TitleBar(self.viewComponents, screenWidth, screenHeight)
+        projectBar = ProjectBar(self.viewComponents, screenWidth, screenHeight)
+        categoriesPanel = CategoriesPanel(self.viewComponents, screenWidth, screenHeight)
+       
 
         clock = pygame.time.Clock()
         done = False
@@ -38,13 +30,23 @@ class EditorView:
         while(not done):
             for event in pygame.event.get(): 
                 if event.type == pygame.QUIT: 
-                    done = True 
+                    done = True
+                elif event.type == pygame.MOUSEBUTTONUP:
+                    if event.button == 1: #left button clicked
+                         for component in self.viewComponents:
+                            if component.isMouseOver((mouse_x, mouse_y)):
+                                component.onClick()
+                #--lastly check for hover events
+                mouse_x, mouse_y = pygame.mouse.get_pos()
+                for component in self.viewComponents:
+                    if component.isMouseOver((mouse_x, mouse_y)):
+                        component.onHover()
+                    else:
+                        component.noHover()
                 screen.fill(Colours.WHITE)
                 pygame.mouse.set_cursor(*pygame.cursors.arrow)
-                pygame.draw.rect(screen, Colours.PRIMARY_900, titleBar)
-                screen.blit(titleText, (50, (50 - titleText.get_rect().height)/2))
-                screen.blit(fileButton, fileButtonBox)
-                btn.draw(screen)
-                pygame.draw.rect(screen, Colours.PRIMARY_700, projectBar)
+                titleBar.draw(screen)
+                categoriesPanel.draw(screen)
+                projectBar.draw(screen)
                 pygame.display.flip()
                 clock.tick(60)
