@@ -7,15 +7,18 @@ from client.widgets.RoundedButton import *
 import pkgutil
 from pydoc import locate
 import src.ComponentCategories as Categories
+from src import ComponentTypeConstants
 from types import MethodType
+
+from client.bloks.MethodBlok import MethodBlok
 
 class CategoriesPanel:
     componentInstances = []
-    categoryButtons = []
+    categoryButtons = {}
     categoryIcons = []
-    def __init__(self, viewComponents, screenWidth, screenHeight):
+    currentCategoryBloks = []
+    def __init__(self, viewComponents, allBloks, screenWidth, screenHeight):
         self.screenHeight = screenHeight
-        self.panel = pygame.Rect(50, 100, 300, screenHeight)
         self.tabs = pygame.Rect(0, 100, 50, screenHeight)
         self.components = [name for _, name, _ in pkgutil.iter_modules(['src'])]
         self.components.remove('ComponentTypeConstants')
@@ -27,10 +30,11 @@ class CategoriesPanel:
             instance = componentClass()
             self.componentInstances.append(instance)
 
+
         for category in Categories.getCategories():
             categoryButton = RoundedButton('      ', Colours.WHITE_ALPHA_90, 1, (7, 7))
             categoryButton.textRect.centerx = 25
-            categoryButton.textRect.top = 150 + (category['id'] - 1)*60
+            categoryButton.textRect.top = 120 + (category['id'] - 1)*60
             categoryButton.redraw()
             viewComponents.append(categoryButton)
             this = self
@@ -41,19 +45,42 @@ class CategoriesPanel:
             def noHover(self):
                 self.setColour(Colours.WHITE_ALPHA_90)
 
+            
             def onClick(self):
-                this.showCategory(category['id'])
+                this.showCategory(self, viewComponents, allBloks)
 
-            print(category['id'])
             categoryButton.onHover = MethodType(onHover, categoryButton)
             categoryButton.noHover = MethodType(noHover, categoryButton)
             categoryButton.onClick = MethodType(onClick, categoryButton)
-            self.categoryButtons.append(categoryButton)
+            self.categoryButtons.update({categoryButton : category['id']})
             self.categoryIcons.append(category['icon'])
-    
-    def showCategory(self, id):
-        print(id)
 
+            self.panel = pygame.Rect(50, 100, 300, screenHeight)
+            self.categoryTitle = Fonts.productSansRegular(18).render('Interface', True, Colours.GREY_900)
+            
+    def showCategory(self, button, viewComponents, allBloks):
+        for component in viewComponents:
+                        if component.__class__.__name__  == 'MethodBlok' or component.__class__.__name__  == 'PropertyBlok':
+                            viewComponents.remove(component)
+        self.currentCategoryBloks[:] = []
+        categoryId = self.categoryButtons[button]
+        self.categoryTitle = Fonts.productSansRegular(18).render(Categories.getCategories()[categoryId - 1]['name'], True, Colours.GREY_900)
+        for component in self.componentInstances:
+            if component.category['id'] == categoryId:
+                if component.type == ComponentTypeConstants.METHOD:
+                    sampleBlok = MethodBlok(component, None, None)
+
+                    def onClick(self, newComponent = component):
+                        newBlok = MethodBlok(newComponent, None, None)
+                        newBlok.left = 380
+                        newBlok.top = sampleBlok.top + 120
+                        onClick.allBloks.append(newBlok)
+
+                    onClick.allBloks = allBloks
+                    onClick.component = component
+                    sampleBlok.onClick = MethodType(onClick, sampleBlok)
+                    self.currentCategoryBloks.append(sampleBlok)
+                    viewComponents.append(sampleBlok)
     def draw(self, surface):
         pygame.draw.rect(surface, Colours.GREY_300, self.panel)
         pygame.draw.line(surface, Colours.GREY_500, (350, 100), (350, self.screenHeight))
@@ -66,6 +93,16 @@ class CategoriesPanel:
             rect.center = categoryButton.rawRect.center
             surface.blit(self.categoryIcons[i].convert_alpha(), rect)
             i+= 1
+        rectTitle = self.categoryTitle.get_rect()
+        rectTitle.centerx = 200
+        rectTitle.top = 120
+        surface.blit(self.categoryTitle, rectTitle)
+        i = 0
+        for blok in self.currentCategoryBloks:
+            blok.left = 60
+            blok.top = 180 + i*(60)
+            blok.draw(surface)
+            i += 1
 
 
 

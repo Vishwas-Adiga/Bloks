@@ -7,11 +7,14 @@ from widgets.RoundedButton import *
 from editor.TitleBar import *
 from editor.ProjectBar import *
 from editor.CategoriesPanel import *
+from editor.DropPanel import *
 from types import MethodType
+from client.bloks.Blok import Blok
 
 class EditorView:
 
     viewComponents = []
+    allBloks = []
     def show(self):
         pygame.init()
         screenWidth, screenHeight = pygame.display.Info().current_w, pygame.display.Info().current_h
@@ -21,32 +24,50 @@ class EditorView:
 
         titleBar = TitleBar(self.viewComponents, screenWidth, screenHeight)
         projectBar = ProjectBar(self.viewComponents, screenWidth, screenHeight)
-        categoriesPanel = CategoriesPanel(self.viewComponents, screenWidth, screenHeight)
+        categoriesPanel = CategoriesPanel(self.viewComponents, self.allBloks, screenWidth, screenHeight)
+        dropPanel = DropPanel(screenWidth, screenHeight)
+
        
 
         clock = pygame.time.Clock()
         done = False
-
+        mouseDownLeftPosition = None
         while(not done):
             for event in pygame.event.get(): 
                 if event.type == pygame.QUIT: 
                     done = True
-                elif event.type == pygame.MOUSEBUTTONUP:
-                    if event.button == 1: #left button clicked
-                         for component in self.viewComponents:
-                            if component.isMouseOver((mouse_x, mouse_y)):
-                                component.onClick()
-                #--lastly check for hover events
-                mouse_x, mouse_y = pygame.mouse.get_pos()
-                for component in self.viewComponents:
-                    if component.isMouseOver((mouse_x, mouse_y)):
-                        component.onHover()
-                    else:
-                        component.noHover()
+                elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                    pos = pygame.mouse.get_pos()
+                    for blok in self.allBloks:
+                        if blok.isMouseOver(pos):
+                            blok.startMotion(pos)
+                            break
+                elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
+                    pos = pygame.mouse.get_pos()
+                    for component in self.viewComponents:
+                        if component.isMouseOver(pos):
+                            component.onClick()
+                    for blok in self.allBloks:
+                        blok.stopMotion()
+                        if blok.isCollidingWith([dropPanel.dustbinBox]):
+                                self.allBloks.remove(blok)
+                elif event.type == pygame.MOUSEMOTION:
+                    pos = pygame.mouse.get_pos()
+                    for blok in self.allBloks:
+                        if blok.dragging:
+                            blok.moveTo(pos, self.allBloks)
+                    for component in self.viewComponents:
+                        pos = pygame.mouse.get_pos()
+                        if component.isMouseOver(pos):
+                            component.onHover()
+                        else:
+                            component.noHover()
                 screen.fill(Colours.WHITE)
                 pygame.mouse.set_cursor(*pygame.cursors.arrow)
+                dropPanel.draw(screen)
                 titleBar.draw(screen)
                 categoriesPanel.draw(screen)
+                dropPanel.drawBloks(screen, self.allBloks)
                 projectBar.draw(screen)
                 pygame.display.flip()
                 clock.tick(60)
