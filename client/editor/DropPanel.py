@@ -7,15 +7,19 @@ import client.assets.images.ImagesManager as Images
 from types import MethodType
 
 from client.bloks.MethodBlok import MethodBlok
+from client.bloks.InitBlok import InitBlok
 
 class DropPanel:
-    allBloks = []
-    def __init__(self, screenWidth, screenHeight):
+    def __init__(self, screenWidth, screenHeight, allBloks):
         self.dropArea = pygame.Rect(350, 100, screenWidth - 350, screenHeight - 100)
         self.screenWidth = screenWidth
         self.screenHeight = screenHeight
         self.dustbin = Images.dustbin(100, 100)
         self.dustbinBox = self.dustbin.get_rect()
+
+        self.initBlok = InitBlok()
+        self.initBlok.left = 380
+        allBloks.append(self.initBlok)
 
     def draw(self, surface):
         pygame.draw.rect(surface, Colours.WHITE, self.dropArea)

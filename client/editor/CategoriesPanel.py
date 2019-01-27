@@ -11,6 +11,7 @@ from src import ComponentTypeConstants
 from types import MethodType
 
 from client.bloks.MethodBlok import MethodBlok
+from client.bloks.VariableBlok import VariableBlok
 
 class CategoriesPanel:
     componentInstances = []
@@ -68,10 +69,24 @@ class CategoriesPanel:
         for component in self.componentInstances:
             if component.category['id'] == categoryId:
                 if component.type == ComponentTypeConstants.METHOD:
-                    sampleBlok = MethodBlok(component, None, None)
+                    sampleBlok = MethodBlok(component, None)
 
                     def onClick(self, newComponent = component):
-                        newBlok = MethodBlok(newComponent, None, None)
+                        newBlok = MethodBlok(newComponent, None)
+                        newBlok.left = 380
+                        newBlok.top = sampleBlok.top + 120
+                        onClick.allBloks.append(newBlok)
+
+                    onClick.allBloks = allBloks
+                    onClick.component = component
+                    sampleBlok.onClick = MethodType(onClick, sampleBlok)
+                    self.currentCategoryBloks.append(sampleBlok)
+                    viewComponents.append(sampleBlok)
+                elif component.type == ComponentTypeConstants.VARIABLE:
+                    sampleBlok = VariableBlok(component, None)
+
+                    def onClick(self, newComponent = component):
+                        newBlok = VariableBlok(newComponent, None)
                         newBlok.left = 380
                         newBlok.top = sampleBlok.top + 120
                         onClick.allBloks.append(newBlok)
@@ -97,12 +112,13 @@ class CategoriesPanel:
         rectTitle.centerx = 200
         rectTitle.top = 120
         surface.blit(self.categoryTitle, rectTitle)
-        i = 0
+        top = 180
         for blok in self.currentCategoryBloks:
             blok.left = 60
-            blok.top = 180 + i*(60)
+            blok.top = top
+            top += blok.container.height + 20
             blok.draw(surface)
-            i += 1
+
 
 
 

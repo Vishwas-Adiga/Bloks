@@ -8,7 +8,7 @@ from client.widgets.RoundedButton import *
 from types import MethodType
 
 class ProjectBar:
-    def __init__(self, viewComponents, screenWidth, screenHeight):
+    def __init__(self, viewComponents, screenWidth, screenHeight, editor):
         self.projectBar = pygame.Rect(0, 50, screenWidth, 50)
         self.projectTitle = Fonts.productSansRegular(20).render('Untitled Project', True, Colours.WHITE)
 
@@ -25,8 +25,12 @@ class ProjectBar:
         def noHover(self):
             self.setColour(Colours.WHITE_ALPHA_90)
 
+        def onClick(self):
+            editor.parse()
+
         self.editNameButton.onHover = MethodType(onHover, self.editNameButton)
         self.editNameButton.noHover = MethodType(noHover, self.editNameButton)
+        self.editNameButton.onClick = MethodType(onClick, self.editNameButton)
     
     def draw(self, surface):
         surface.blit(Images.shadowBottom(30, self.screenWidth + 20), (-10, 85))

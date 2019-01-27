@@ -3,6 +3,8 @@ import os
 import client.assets.fonts.FontsManager as Fonts
 import client.assets.ColoursManager as Colours
 from client.widgets.RoundedButton import *
+from client.widgets.DropDownPanel import DropDownPanel
+from client.widgets.DropDownItem import DropDownItem
 from types import MethodType
 
 class TitleBar:
@@ -69,6 +71,18 @@ class TitleBar:
 
         self.helpButton.onHover = MethodType(onHover, self.helpButton)
         self.helpButton.noHover = MethodType(noHover, self.helpButton)
+
+        #Dropdown buttons
+        this = self
+        newProjectItem = DropDownItem('New', Colours.RED, 0, Colours.PRIMARY_900)
+        self.fileDropDown = DropDownPanel(Colours.WHITE, 0.2, (5, 5), [newProjectItem, newProjectItem, newProjectItem], self.fileButton.rawRect)
+        def onClick(self):
+            print(this.fileDropDown.rawRect.width)
+            this.fileDropDown.show()
+
+        self.fileButton.onClick = MethodType(onClick, self.fileButton)
+        viewComponents.append(self.fileDropDown)
+        self.fileDropDown.redraw()
     
     def draw(self, surface):
         pygame.draw.rect(surface, Colours.PRIMARY_900, self.titleBar)
@@ -77,6 +91,7 @@ class TitleBar:
         self.editButton.draw(surface)
         self.toolsButton.draw(surface)
         self.helpButton.draw(surface)
+        self.fileDropDown.draw(surface)
         
 
 

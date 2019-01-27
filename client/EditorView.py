@@ -15,17 +15,17 @@ class EditorView:
 
     viewComponents = []
     allBloks = []
-    def show(self):
+    def __init__(self):
         pygame.init()
         screenWidth, screenHeight = pygame.display.Info().current_w, pygame.display.Info().current_h
     
         screen = pygame.display.set_mode([screenWidth, screenHeight], pygame.RESIZABLE)
         pygame.display.set_caption("Bloks")
 
-        titleBar = TitleBar(self.viewComponents, screenWidth, screenHeight)
-        projectBar = ProjectBar(self.viewComponents, screenWidth, screenHeight)
-        categoriesPanel = CategoriesPanel(self.viewComponents, self.allBloks, screenWidth, screenHeight)
-        dropPanel = DropPanel(screenWidth, screenHeight)
+        self.titleBar = TitleBar(self.viewComponents, screenWidth, screenHeight)
+        self.dropPanel = DropPanel(screenWidth, screenHeight, self.allBloks)
+        self.projectBar = ProjectBar(self.viewComponents, screenWidth, screenHeight, self)
+        self.categoriesPanel = CategoriesPanel(self.viewComponents, self.allBloks, screenWidth, screenHeight)
 
        
 
@@ -48,26 +48,66 @@ class EditorView:
                         if component.isMouseOver(pos):
                             component.onClick()
                     for blok in self.allBloks:
-                        blok.stopMotion()
-                        if blok.isCollidingWith([dropPanel.dustbinBox]):
+                        blok.stopMotion(pos, self.allBloks)
+                        if blok.isCollidingWith([self.dropPanel.dustbinBox]):
+                            if not blok.__class__.__name__ == 'InitBlok':
                                 self.allBloks.remove(blok)
                 elif event.type == pygame.MOUSEMOTION:
                     pos = pygame.mouse.get_pos()
                     for blok in self.allBloks:
                         if blok.dragging:
-                            blok.moveTo(pos, self.allBloks)
+                            blok.moveTo(pos)
                     for component in self.viewComponents:
                         pos = pygame.mouse.get_pos()
                         if component.isMouseOver(pos):
                             component.onHover()
                         else:
                             component.noHover()
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_RETURN:
+                        for blok in self.allBloks:
+                            if blok.__class__.__name__ == 'VariableBlok' and blok.isInTextMode:
+                                blok.isInTextMode = False
+                    elif event.key == pygame.K_BACKSPACE:
+                        for blok in self.allBloks:
+                            if blok.__class__.__name__ == 'VariableBlok' and blok.isInTextMode:
+                                blok.textContent = blok.textContent[:-1]
+                    else:
+                        for blok in self.allBloks:
+                            if blok.__class__.__name__ == 'VariableBlok' and blok.isInTextMode:
+                                blok.textContent += event.unicode
                 screen.fill(Colours.WHITE)
                 pygame.mouse.set_cursor(*pygame.cursors.arrow)
-                dropPanel.draw(screen)
-                titleBar.draw(screen)
-                categoriesPanel.draw(screen)
-                dropPanel.drawBloks(screen, self.allBloks)
-                projectBar.draw(screen)
+                self.dropPanel.draw(screen)
+                self.titleBar.draw(screen)
+                self.categoriesPanel.draw(screen)
+                self.dropPanel.drawBloks(screen, self.allBloks)
+                self.projectBar.draw(screen)
                 pygame.display.flip()
                 clock.tick(60)
+
+    def parse(self):
+        headers = []
+        for blok in self.allBloks:
+            if blok.component == None:
+                continue
+            for header in blok.component.headers:
+                headers.append(header)
+        headers = list(set(headers))
+
+        headersString = ''
+        for header in headers:
+            headersString += '#include <' + header + '>\n'
+
+        parserResult = 'using namespace std; \nint main() {'
+        parserResult += self.dropPanel.initBlok.parse()
+        parserResult += '}'
+
+        currentPath = os.path.dirname( os.path.realpath( __file__ ) )
+        f = open(currentPath + 'untitled.cpp', 'w')
+        f.write(headersString)
+        f.write(parserResult)
+
+        print('"A:/Vishwas/School/Class 12/CS Project/compiler/bin/g++" "' + currentPath +  'untitled.cpp" -o "' + currentPath + 'testfile.exe"')
+        os.system('"' + currentPath + 'testfile.exe"')
+        

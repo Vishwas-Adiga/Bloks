@@ -1,3 +1,7 @@
 METHOD = 1
 PROPERTY = 2
 VARIABLE = 3
+
+NONE = 'R1'
+INT = 'R2'
+STRING = 'R3'

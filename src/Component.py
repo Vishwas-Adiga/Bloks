@@ -4,6 +4,8 @@ class Component:
     category = None
     args = []
     headers = []
+    returnType = None
+    acceptedReturnTypes = []
 
     def parse(self, args):
         pass

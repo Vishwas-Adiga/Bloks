@@ -1,7 +1,6 @@
 import os
-import client.SplashView as SpashView
-import client.EditorView as EditorView
+from client import SplashView
+from client.EditorView import EditorView
 
 #SplashView.show()
-editorView = EditorView.EditorView()
-editorView.show()
+editorView = EditorView()

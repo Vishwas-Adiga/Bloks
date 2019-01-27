@@ -1,2 +1,2 @@
-SYSTEM = 'system.h'
+SYSTEM = 'process.h'
 IOSTREAM = 'iostream'

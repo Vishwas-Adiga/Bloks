@@ -9,7 +9,10 @@ class PrintComponent(Component):
     category = ComponentCategories.INTERFACE
     headers = [ComponentHeaders.IOSTREAM]
     args = ['text']
+    returnType = ComponentTypeConstants.NONE
+    acceptedReturnTypes = [ComponentTypeConstants.STRING]
 
     def parse(self, args):
-        return 'cout <<' + args[0]
+        return 'cout <<"' + args[0] + '";'
+    
 
